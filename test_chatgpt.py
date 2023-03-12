@@ -1,19 +1,17 @@
-import wave
 from aiogram import Bot, Dispatcher, types
 from config import TOKEN
 import config
 from aiogram.utils import executor
 from pathlib import Path
-from aiogram.types import ContentType, File, Message
 import openai
 import os
 from googletrans import Translator
 from moviepy.editor import concatenate_audioclips, AudioFileClip
 from gtts import gTTS
 from aiogram.types.message import ContentType
-from keyboard_pay import *
+from search_db import *
 
-openai.api_key = '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'
+openai.api_key = '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'
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 LOST_MESSAGE = ''
@@ -44,6 +42,7 @@ async def buy(message: types.Message):
                            payload="test-invoice-payload")
 
 
+
 # pre checkout  (must be answered in 10 seconds)
 @dp.pre_checkout_query_handler(lambda query: True)
 async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
@@ -61,7 +60,7 @@ async def successful_payment(message: types.Message):
 
     await bot.send_message(message.chat.id,
                            f"Платеж на сумму {message.successful_payment.total_amount // 100} {message.successful_payment.currency} прошел успешно!!!")
-    BUY_STATUS = 1
+    serch_user_in_db(message.from_user.id, 1)
     await message.answer('Теперь вы можете спросить меня')
 
 
@@ -84,9 +83,9 @@ async def cmd_start(message: types.Message):
 @dp.message_handler()
 async def send_message(message: types.Message):
     global LOST_MESSAGE, BUY_STATUS
-    if BUY_STATUS == 0:
-        pass
-    elif BUY_STATUS == 1:
+    if not serch_user(message.from_user.id):
+        await message.answer("Пожалуйста, преобретите подписку")
+    elif serch_user(message.from_user.id):
         if message.content_type == types.ContentType.VOICE:
             file_id = message.voice.file_id
         elif message.content_type == types.ContentType.AUDIO:
