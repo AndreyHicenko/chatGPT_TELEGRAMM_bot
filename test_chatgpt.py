@@ -11,7 +11,7 @@ from gtts import gTTS
 from aiogram.types.message import ContentType
 from search_db import *
 
-openai.api_key = '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'
+openai.api_key = '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'
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 LOST_MESSAGE = ''
