@@ -12,21 +12,49 @@ from gtts import gTTS
 from aiogram.types.message import ContentType
 from search_db import *
 import os.path
+from search_db_profiles import *
 
 logging.basicConfig(level=logging.INFO)
-openai.api_key = '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'
+openai.api_key = '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'
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 LOST_MESSAGE = ''
 BUY_STATUS = 0
 
 
+@dp.message_handler(commands=['profile'])
+async def profile_start(message: types.Message):
+    money = search_money(message.from_user.id)
+    subscription = search_subscription_availability(message.from_user.id)
+    if subscription == 0:
+        subscription = 'Неактивна'
+    elif subscription == 1:
+        subscription = 'Активна'
+    tokens_with_user = search_token(message.from_user.id)
+    await message.answer("<b>📓 Ваш профиль</b>"
+                         "\n \n"
+                         f"<b>👤 Имя:</b> {message.from_user.first_name} {message.from_user.last_name} \n"
+                         f"<b>🔑 Токенов осталось:</b> {tokens_with_user}\n"
+                         f"<b>💰 Баланс:</b> {money}\n"
+                         f"<b>💎 Подписка:</b> {subscription}\n"
+                         "\n"
+                         "❓ Подробнее про токены /help", parse_mode="HTML")
 
 
 
-
-
-
+@dp.message_handler(commands=['start'])
+async def cmd_start(message: types.Message):
+    await message.answer("<b>Здравствуйте!</b> Вас приветствует Всемогущий-Бот. Я могу"
+                         " ответить на любой интересующий вас вопрос. Вы можете спросить меня как текстом так и"
+                         " голосом. Чтобы это сделать просто напиши мне. "
+                         "Надеюсь я помогу вам! <b>В стандартной версии количество запросов ограниченно."
+                         " Далее необходимо"
+                         " преобрести подписку</b>"
+                         " Это можно сделать по команде /buy.", parse_mode="HTML")
+    if search_user_with_db(message.from_user.id):
+        pass
+    elif not search_user_with_db(message.from_user.id):
+        add_new_user(message.from_user.id)
 
 # для голоса обязательно
 @dp.message_handler(content_types=[
@@ -60,11 +88,12 @@ async def send_message(message: types.Message):
                 return
             else:
                 response = openai.Completion.create(
-                    model='text-davinci-003', prompt=message.text, temperature=0.9, max_tokens=1000, top_p=1.0,
+                    model='text-davinci-003', prompt=message.text, temperature=0.9, max_tokens=4000, top_p=1.0,
                     frequency_penalty=0.0,
                     presence_penalty=0.6,
                     stop=['You:']
                 )
+                update_token(message.from_user.id, len(message.text))
                 await message.answer(response['choices'][0]['text'])
                 LOST_MESSAGE = response["choices"][0]["text"]
                 return
