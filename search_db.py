@@ -2,7 +2,7 @@ import sqlite3
 import datetime
 import asyncio
 
-#при покупке подписки вносит данные в базу данных
+
 def serch_user_in_db(user_id, duration):
     list1 = []
     sqlite_connection = sqlite3.connect('db/db_user_buy.db')
@@ -58,11 +58,6 @@ def serch_user(user_id):
             return False
         else:
             return True
-
-
-
-
-
 
 
 
