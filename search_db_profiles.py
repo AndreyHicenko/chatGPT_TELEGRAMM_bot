@@ -44,9 +44,11 @@ def add_new_user(user_id):
 def update_token(user_id, lenth_str):
     sqlite_connection = sqlite3.connect('db/db_user_buy.db')
     cursor = sqlite_connection.cursor()
-    lenth_str = (lenth_str * 2.5) // 1
+    lenth_str = (lenth_str * 6) // 1
 
     remains = int(search_remaining_tokens(user_id)) - lenth_str
+    if remains < 0:
+        remains = 0
     cursor.execute('UPDATE users_profile SET remaining_tokens = ? WHERE user_id = ?', (remains,
                                                                                        user_id))
     sqlite_connection.commit()
