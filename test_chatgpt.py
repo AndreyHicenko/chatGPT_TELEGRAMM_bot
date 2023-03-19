@@ -37,6 +37,15 @@ async def top_up(callback: types.callback_query):
     await bot.delete_message(callback.from_user.id, callback.message.message_id)
     await bot.send_message(callback.from_user.id, "Выберете сумму для пополнения", reply_markup=money_auth_menu)
 
+@dp.message_handler(commands=['help'])
+async def help(message: types.Message):
+    await message.answer("🔹 Токены нужны чтобы задавать вопросы боту в бесплатной версии.  \n \n"
+                         "🔹 Они тратятся в соотношении 6 токенов ~ 1 символ любого алфавита. \n \n"
+                         "🔹 Если у вас есть "
+                         "подписка то токены не ограничены\n \n"
+                         "🔹 Если токены кончиличь необходимо преобрести подписку.", parse_mode="HTML")
+
+
 
 # доделать оплату
 @dp.callback_query_handler(text='100_rub')

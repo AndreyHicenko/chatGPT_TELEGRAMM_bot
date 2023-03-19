@@ -114,7 +114,7 @@ async def users_agreement(message: types.Message):
                          "выражать отношение к другим народам", parse_mode="HTML")
 
 @dp.message_handler(commands=['help'])
-async def users_agreement(message: types.Message):
+async def help(message: types.Message):
     await message.answer("🔹 Токены нужны чтобы задавать вопросы боту в бесплатной версии.  \n \n"
                          "🔹 Они тратятся в соотношении 6 токенов ~ 1 символ любого алфавита. \n \n"
                          "🔹 Если у вас есть "
