@@ -23,8 +23,8 @@ import random
 import string
 
 logging.basicConfig(level=logging.INFO)
-OPENAI_API = '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'
-openai.api_key = OPENAI_API
+OPENAI_API = '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'
+OPENAI_API_VOICE = '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'
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
 LOST_MESSAGE = ''
@@ -193,6 +193,7 @@ async def send_message(message: types.Message):
                 if message.text not in x:
                     if message.text[-1] not in string.punctuation:
                         message.text = message.text + '.'
+                    openai.api_key = OPENAI_API
                     messages = [
                         {"role": "system", "content": "You are a helpful assistant."},
                     ]
@@ -264,19 +265,16 @@ async def send_message(message: types.Message):
                 translator = Translator()
                 audio_file.close()
                 result = translator.translate(transcript["text"], src='en', dest='ru')
-                messages = [
-                    {"role": "system", "content": "You are a helpful assistant."},
-                ]
-                item = {"role": "user", "content": message.text}
-                messages.append(item)
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=messages)
-
+                openai.api_key = OPENAI_API_VOICE
+                response = openai.Completion.create(
+                    model='text-davinci-003', prompt=result.text, temperature=0.5, max_tokens=2000, top_p=1.0,
+                    frequency_penalty=0.0,
+                    presence_penalty=0.6,
+                    stop=['You:']
+                )
                 if search_subscription_availability(message.from_user.id) == 0:
                     update_token(message.from_user.id, len(result.text))
-                response = str(response['choices'][0]['message']['content'])
-                tts = gTTS(f'{response}', lang='ru')
+                tts = gTTS(f'{response["choices"][0]["text"]}', lang='ru')
                 tts.save(f'sound_ru{file_id}.mp3')
                 tts_audio_file = open(f'sound_ru{file_id}.mp3', "rb")
                 await bot.send_voice(message.from_user.id, tts_audio_file,
